@@ -21,28 +21,30 @@ class Critic:
         self.build_model()
 
     def build_model(self):
+        l2_lambda = 1e-7
+        
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
         # Define input layers
         states = layers.Input(shape=(self.state_size,), name='states')
         actions = layers.Input(shape=(self.action_size,), name='actions')
 
         # Add hidden layer(s) for state pathway
-        net_states = layers.Dense(units=24, activation='relu')(states)
-        net_states = layers.Dense(units=48, activation='relu')(net_states)
+        net_states = layers.Dense(units=256, activation='relu', kernel_regularizer=regularizers.l2(l2_lambda))(states)
+        net_states = layers.Dense(units=512, activation='relu', kernel_regularizer=regularizers.l2(l2_lambda))(net_states)
+        net_states = layers.Dense(units=64, activation='relu', kernel_regularizer=regularizers.l2(l2_lambda))(net_states)
 
         # Add hidden layer(s) for action pathway
-        net_actions = layers.Dense(units=48, activation='relu')(actions)
-
-        # Try different layer sizes, activations, add batch normalization, regularizers, etc.
+        net_actions = layers.Dense(units=256, activation='relu', kernel_regularizer=regularizers.l2(l2_lambda))(actions)
+        net_actions = layers.Dense(units=512, activation='relu', kernel_regularizer=regularizers.l2(l2_lambda))(net_actions)
+        net_actions = layers.Dense(units=64, activation='relu', kernel_regularizer=regularizers.l2(l2_lambda))(net_actions)
 
         # Combine state and action pathways
         net = layers.Add()([net_states, net_actions])
-        net = layers.Dense(24, activation='relu')(net)
-
-        # Add more layers to the combined network if needed
+        net = layers.Dense(units=32, activation='relu', kernel_regularizer=regularizers.l2(l2_lambda))(net)
+        net = layers.Dense(units=16, activation='relu', kernel_regularizer=regularizers.l2(l2_lambda))(net)
 
         # Add final output layer to prduce action values (Q values)
-        Q_values = layers.Dense(units=1, name='q_values')(net)
+        Q_values = layers.Dense(units=1, name='q_values', kernel_regularizer=regularizers.l2(l2_lambda))(net)
 
         # Create Keras model
         self.model = models.Model(inputs=[states, actions], outputs=Q_values)

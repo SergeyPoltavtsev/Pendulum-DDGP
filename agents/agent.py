@@ -14,8 +14,8 @@ class DDPG_Agent():
         self.action_high = self.env.action_space.high[0]
         
         # Learning rates
-        self.actor_learning_rate = 0.001
-        self.critic_learning_rate = 0.001
+        self.actor_learning_rate = 1e-4
+        self.critic_learning_rate = 1e-3
         
         # Actor (Policy) Model
         self.actor_local = Actor(self.state_size, self.action_size, self.action_low, self.action_high, self.actor_learning_rate)
@@ -31,18 +31,18 @@ class DDPG_Agent():
 
         # Noise process
         self.exploration_mu = 0
-        self.exploration_theta = 0.15
-        self.exploration_sigma = 0.2
+        self.exploration_theta = 0.1
+        self.exploration_sigma = 0.1
         self.noise = OUNoise(self.action_size, self.exploration_mu, self.exploration_theta, self.exploration_sigma)
 
         # Replay memory
-        self.buffer_size = 500
-        self.batch_size = 32
+        self.buffer_size = 1000000
+        self.batch_size = 64
         self.memory = ReplayBuffer(self.buffer_size, self.batch_size)
 
         # Algorithm parameters
-        self.gamma = 0.95  # discount factor
-        self.tau = 0.125  # for soft update of target parameters
+        self.gamma = 0.99  # discount factor
+        self.tau = 0.001  # for soft update of target parameters
 
     def reset_episode(self):
         self.total_reward = 0.0
